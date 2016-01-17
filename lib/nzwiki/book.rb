@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'kramdown'
+require 'drip'
 
 module NZWiki
   class Book

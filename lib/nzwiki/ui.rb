@@ -72,6 +72,7 @@ document.getElementById(x).style.display = "block";
 </div>
 <hr />
 <%= @wiki.to_html(context) %>
+<%= @list.to_html(context) %>
 </body></html>
 EOS
     def initialize(session)
@@ -79,6 +80,7 @@ EOS
       @user = UserTofu.new(session)
       @prompt = PromptTofu.new(session)
       @wiki = WikiTofu.new(session)
+      @list = ListTofu.new(session)
     end
   end
   
@@ -148,6 +150,17 @@ EOS
       @session.store.auth_any
     end
   end
+
+  class ListTofu < Tofu::Tofu
+    ERB.new(<<EOS).def_method(self, 'to_html(context)')
+<%
+  @session.book.recent_names.each do |name|
+    page = @session.book[name]
+%><h2><%=h page.author %></h2><%= page.html%><%
+  end
+%>
+EOS
+  end
   
   class WikiTofu < Tofu::Tofu
     ERB.new(<<EOS).def_method(self, 'to_html(context)')
@@ -165,9 +178,11 @@ EOS
 EOS
 
     def to_name(context)
-      context.req.path_info
+      path = context.req.path_info.dup
+      path[0] = '' if path[0] == '/'
+      path == '' ? @session.book.new_page_name : path
     end
-    
+
     def do_text(context, params)
       return unless @session.login
       begin
@@ -182,7 +197,8 @@ EOS
     end
     
     def get_page(context)
-      @session.book[to_name(context)]
+      name = to_name(context)
+      @session.book[name]
     end
   end
 end
