@@ -2,8 +2,8 @@ require 'drip'
 
 =begin
   prefix = project name
-  page = prefix + '@' + page name
-  auth = prefix + '?' + count
+  page = prefix + '@0' + page name
+  auth = prefix + '?0' + count
   control = prefix + '%' + ...
 =end
 
@@ -12,7 +12,7 @@ module NZWiki
     def initialize(drip, project)
       @drip = drip
       @project = project
-      @auth_counter = "#{@prefix}?"
+      @auth_counter = "#{@project}?"
     end
 
     def []=(k, v)
@@ -30,6 +30,24 @@ module NZWiki
       ctime, _, = @drip.read_tag(0, page_key(k), 1, 0).first
       return nil unless ctime
       @drip.key_to_time(ctime)
+    end
+
+    def next_page(k)
+      tag = @drip.tag_next(page_key(k))
+      tag_to_key(tag)
+    end
+
+    def each_page
+      return to_enum(__method__) unless block_given?
+
+      tag = "#{@project}@1"
+      while tag = @drip.tag_prev(tag)
+        found = tag_to_key(tag)
+        break unless found
+        yield(found)
+      end
+
+      nil
     end
 
     def auth_create
@@ -57,11 +75,20 @@ module NZWiki
 
     private
     def auth_counter
-      @prefix + '?'
+      @project + '?'
     end
 
     def page_key(name)
-      "#{@project}@#{name}"
+      "#{@project}@0#{name}"
+    end
+
+    def tag_to_key(tag)
+      return nil unless tag
+      prefix = "#{@project}@0"
+      return nil unless tag[0, prefix.size] == prefix
+      tmp = tag.dup
+      tmp[0, prefix.size] = ''
+      tmp
     end
   end
 end

@@ -50,4 +50,51 @@ class TestNZStore < Test::Unit::TestCase
       assert(['1', '2', '3'].include?(@store.auth_any))
     end
   end
+
+  def test_next_page
+    @store['hello'] = 'world'
+    @store['hello'] = 'again'
+    @store['again'] = 'hello'
+    @store['zz'] = 'hello'
+    @store['hello'] = nil
+
+    assert_equal(@store.next_page(''), 'again')
+    assert_equal(@store.next_page('again'), 'hello')
+    assert_equal(@store.next_page('hello'), 'zz')
+    assert_equal(@store.next_page('zz'), nil)
+
+    @store['zzz'] = 'hello'
+
+    assert_equal(@store.next_page('zz'), 'zzz')
+    assert_equal(@store.next_page('zzz'), nil)
+    
+    assert_equal(@store.each_page.to_a.reverse, ['again', 'hello', 'zz', 'zzz'])
+  end
+end
+
+class TestNZBook < Test::Unit::TestCase
+  def setup
+    @drip = Drip.new(nil)
+    @store = NZWiki::Store.new(@drip, 'test')
+    @book = NZWiki::Book.new(@store)
+  end
+  
+  def test_order
+    a = []
+
+    a << @book.new_page_name
+    @book.update(a.last, 'hello', 'foo')
+
+    a << @book.new_page_name
+    @book.update(a.last, 'world', 'foo')
+
+    ary = @book.recent_names
+    assert_equal(ary, [a[1], a[0]])
+
+    @book.update(a[0], 'hello', 'foo')
+    assert_equal(@book.recent_names, [a[1], a[0]])
+
+    new_book = NZWiki::Book.new(@store)
+    assert_equal(new_book.recent_names, [a[1], a[0]])
+  end
 end

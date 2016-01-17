@@ -9,6 +9,10 @@ module NZWiki
       @store = store
     end
 
+    def new_page_name
+      Drip.time_to_key(Time.now).to_s(36)
+    end
+
     def [](name)
       @monitor.synchronize do
         @pages[name] || Page.new(name)
@@ -18,9 +22,15 @@ module NZWiki
     def update(name, src, author)
       @monitor.synchronize do
         page = self[name]
+        @pages.delete(name)
         @pages[name] = page
+        @store[name] = page.to_hash
         page.update(src, author)
       end
+    end
+
+    def recent_names(sz=10)
+      @store.each_page.to_a
     end
   end
 
@@ -37,6 +47,10 @@ module NZWiki
       @html = document.to_html
       @warnings = document.warnings
       @author = author
+    end
+
+    def to_hash
+      {:src => @src, :author => @author }
     end
   end
 end
