@@ -20,10 +20,9 @@ module NZWiki
     end
 
     def [](k)
-      mtime, value, = @drip.head(1, page_key(k)).first
-      return nil unless mtime
-      mtime = @drip.key_to_time(mtime)
-      [value, mtime]
+      key, value, = @drip.head(1, page_key(k)).first
+      return nil unless key
+      value
     end
 
     def ctime(k)

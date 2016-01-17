@@ -37,6 +37,10 @@ module NZWiki
     def lookup_view(context)
       @base
     end
+
+    def listing?(context)
+      context.req.path_info == '/'
+    end
   end
   
   class BaseTofu < Tofu::Tofu
@@ -56,6 +60,12 @@ body {
     font-size: 80%;
     width: 100%;
 }
+
+.list_entry.ListInfo {
+    font-size: 50 %;
+    foreground: #aaa;
+}
+
 </style>
 <script language="JavaScript">
 function open_edit(x){
@@ -154,10 +164,17 @@ EOS
   class ListTofu < Tofu::Tofu
     ERB.new(<<EOS).def_method(self, 'to_html(context)')
 <%
+if @session.listing?(context)
   @session.book.recent_names.each do |name|
     page = @session.book[name]
-%><h2><%=h page.author %></h2><%= page.html%><%
+%><div class='list_entry'>
+    <%= page.html%>
+    <div class='ListInfo'><small><%=h page.author %> <%=h page.mtime.strftime("%Y-%m-%d") %> <a href="/<%=name%>">書き直す</a></small></div>
+  </div><%
   end
+else 
+  %><small><a href="/">タイムラインへ</a></small><%
+end
 %>
 EOS
   end
@@ -165,13 +182,15 @@ EOS
   class WikiTofu < Tofu::Tofu
     ERB.new(<<EOS).def_method(self, 'to_html(context)')
 <% page = get_page(context) %>
-<%= page.html %>
+<% unless @session.listing?(context) %><%= page.html %><% end %>
 <% if @session.login %>
-<a href='javascript:open_edit("edit-<%=h tofu_id %>")'>[edit]</a>
-<div id='edit-<%=h tofu_id %>' style='display:none;'>
+ <% if @session.listing?(context) %>
+  <small><a href='javascript:open_edit("edit-<%=h tofu_id %>")'>新しく書く</a></small>
+  <div id='edit-<%=h tofu_id %>'style='display:none;'>
+ <% end %>
 <%= form('text', {}, context) %>
-<textarea name='text' rows="15" cols="40"><%=h page.src %></textarea>
-<input type='submit' name='ok' value='ok'/>
+<textarea name='text' rows="8" cols="40"><%=h page.src %></textarea>
+<p><input type='submit' name='ok' value='OK'/></p>
 </form>
 </div>
 <% end %>

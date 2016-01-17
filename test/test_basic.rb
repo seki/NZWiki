@@ -11,11 +11,11 @@ class TestNZStore < Test::Unit::TestCase
   def test_page
     assert_equal(@store['hello'], nil)
     @store['hello'] = 'world'
-    assert_equal(@store['hello'][0], 'world')
+    assert_equal(@store['hello'], 'world')
     @store['hello'] = 'again'
-    assert_equal(@store['hello'][0], 'again')
+    assert_equal(@store['hello'], 'again')
     @store['hello'] = nil
-    assert_equal(@store['hello'][0], nil)
+    assert_equal(@store['hello'], nil)
   end
 
   def test_auth_create
