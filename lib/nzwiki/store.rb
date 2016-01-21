@@ -57,10 +57,11 @@ module NZWiki
       end
     end
 
-    def auth_any
+    def auth_any(n = nil)
       _, size = @drip.head(1, @auth_counter).first
       return nil unless size
-      auth_get(rand(size) + 1)
+      return auth_get(rand(size) + 1) unless n
+      (1..size).sort_by {rand}[0, n].collect {|x| p x; auth_get(x)}
     end
 
     def auth_set(key, value)
