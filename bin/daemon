@@ -39,7 +39,13 @@ end
 NZWiki::NZSession.book = book
 NZWiki::NZSession.store = store
 
-WEBrick::Daemon.start unless $DEBUG
+exit!(0) if fork
+Process::setsid
+exit!(0) if fork
+STDIN.reopen("/dev/null")
+STDOUT.reopen("/dev/null", "w")
+STDERR.reopen("/dev/null", "w")
+
 tofu = Tofu::Bartender.new(NZWiki::NZSession, 'nz_8083_2')
 s = WEBrick::HTTPServer.new(:Port => 8083)
 s.mount("/", Tofu::Tofulet, tofu)
