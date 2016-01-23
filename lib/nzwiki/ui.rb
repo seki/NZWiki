@@ -5,7 +5,7 @@ module NZWiki
   class NZSession < Tofu::Session
     @@book = nil
     @@store = nil
-    
+
     def self.book=(book)
       @@book = book
     end
@@ -24,16 +24,16 @@ module NZWiki
     end
     attr_reader :book, :store
     attr_accessor :login, :user
-    
+
     def has_username?
       not @user.to_s.empty?
     end
-    
+
     def user=(value)
       @hint = value
       @user = value
     end
-    
+
     def lookup_view(context)
       @base
     end
@@ -42,49 +42,35 @@ module NZWiki
       context.req.path_info == '/'
     end
   end
-  
+
   class BaseTofu < Tofu::Tofu
-    ERB.new(<<EOS).def_method(self, 'to_html(context)')
-<html>
-<meta name="viewport" content="width=320" /><head>
-<title>NZWiki</title>
-<style type="text/css" media="screen">
-body {
-    font-family: Helvetica;
-    background: #fef5da;
-    color: #000000;
-}
+    ERB.new(<<-EOS).def_method(self, 'to_html(context)')
+      <html>
+        <head>
+          <meta name="viewport" content="width=640" />
+          <title>NZWiki</title>
+          <link href="/css/nzwiki.css" rel="stylesheet">
+        </head>
+        <body>
+          <div id="wrapper">
+            <div class='UserTofu'>
+              <%= @user.to_html(context) %>
+              <% if session.has_username? %>
+                <% unless session.login %>
+                  <%= @prompt.to_html(context) %>
+                <% end %>
+              <% end %>
+              <%= @wiki.to_html(context) %>
+            </div>
+            <p class="UserTofuImg">
+              <img src="/img/img.png">
+            </p>
+            <%= @list.to_html(context) %>
+          </div>
+        </body>
+      </html>
+    EOS
 
-.UserTofu {
-    background: #eec;
-    font-size: 80%;
-    width: 100%;
-}
-
-.list_entry.ListInfo {
-    font-size: 50 %;
-    foreground: #aaa;
-}
-
-</style>
-<script language="JavaScript">
-function open_edit(x){
-document.getElementById(x).style.display = "block";
-}
-</script>
-</head>
-<body>
-<div class='UserTofu'>
-<%= @user.to_html(context) %>
-<% if session.has_username? %>
-<% unless session.login %><%= @prompt.to_html(context) %><% end %>
-<% end %>
-</div>
-<hr />
-<%= @wiki.to_html(context) %>
-<%= @list.to_html(context) %>
-</body></html>
-EOS
     def initialize(session)
       super(session)
       @user = UserTofu.new(session)
@@ -93,25 +79,30 @@ EOS
       @list = ListTofu.new(session)
     end
   end
-  
+
   class UserTofu < Tofu::Tofu
-    ERB.new(<<EOS).def_method(self, 'to_html(context)')
-<% unless @session.has_username? %>
-<%=form('user', {}, context)%>
-プレイヤー名: <input class='enter' type='text' size='8' name='user' value='<%= @session.user %>'/></form>
-<% else %>
-<%=h @session.user %> さんのターン！<small>(<%=a('change', {}, context)%>名前かえたい</a>)</small>
-<% end %>
-EOS
+    ERB.new(<<-EOS).def_method(self, 'to_html(context)')
+      <% unless @session.has_username? %>
+        <%= form('user', {}, context) %>
+          <p>プレイヤー名</p>
+          <input class='enter' type='text' name='user' value='<%= @session.user %>'/>
+        </form>
+      <% else %>
+        <p>
+          <%=h @session.user %> さんのターン！
+        </p>
+      <% end %>
+    EOS
+
     def initialize(session)
       super(session)
     end
-    
+
     def do_change(context, params)
       @session.login = false
       @session.user = ''
     end
-    
+
     def do_user(context, params)
       user ,= params['user']
       user = user.force_encoding('utf-8') if user
@@ -119,30 +110,31 @@ EOS
       @session.user = user
     end
   end
-  
+
   class PromptTofu < Tofu::Tofu
-    ERB.new(<<EOS).def_method(self, 'to_html(context)')
-<p>
-<%=form('prompt', {}, context)%>
-<%=h @nazo[:question] %><%
-  if @nazo[:choose].size == 1
-%><input class='enter' type='text' size='40' name='answer' value='' autocomplete='off' autofocus/><%
-  else
-%><select name='answer' autofocus><%
-    @nazo[:choose].sort_by {|x| Integer(x) rescue rand}.each do |x| 
-%><option value="<%=h x %>"><%=h x %></option><%
-    end
-%></select><input class='submit' type='submit' value='OK' /><%
-  end
-%>
-</form>
-</p>
-EOS
+    ERB.new(<<-EOS).def_method(self, 'to_html(context)')
+      <p>
+        <%= form('prompt', {}, context) %>
+          <p><%=h @nazo[:question] %></p>
+          <% if @nazo[:choose].size == 1 %>
+            <input class='enter' type='text' name='answer' value='' autocomplete='off' autofocus/>
+          <% else %>
+            <select name='answer' autofocus>
+              <% @nazo[:choose].sort_by {|x| Integer(x) rescue rand}.each do |x| %>
+                <option value="<%=h x %>"><%=h x %></option>
+              <% end %>
+            </select>
+            <input class='submit' type='submit' value='OK' />
+          <% end %>
+        </form>
+      </p>
+    EOS
+
     def initialize(session)
       super(session)
       @nazo = get_nazo
     end
-  
+
     def do_prompt(context, params)
       answer ,= params['answer']
       it = answer.force_encoding('utf-8') if answer
@@ -151,50 +143,65 @@ EOS
       end
       @nazo = get_nazo
     end
-    
+
     def tofu_id
       'prompt'
     end
-    
+
     def get_nazo
       @session.store.auth_any
     end
   end
 
   class ListTofu < Tofu::Tofu
-    ERB.new(<<EOS).def_method(self, 'to_html(context)')
-<%
-if @session.listing?(context)
-  @session.book.recent_names.each do |name|
-    page = @session.book[name]
-%><div class='list_entry'>
-    <%= page.html%>
-    <div class='ListInfo'><small><%=h page.author %> <%=h page.mtime.strftime("%Y-%m-%d") %> <a href="/<%=name%>">書き直す</a></small></div>
-  </div><%
+    ERB.new(<<-EOS).def_method(self, 'to_html(context)')
+      <% if @session.listing?(context) %>
+        <% @session.book.recent_names.each do |name| %>
+          <% page = @session.book[name] %>
+          <div class='list_entry_wrapper'>
+            <div class='list_entry'>
+              <div class='ListInfo'>
+                <p class="author">
+                  <%=h page.author %>
+                </p>
+                <p class="time">
+                  <%=h page.mtime.strftime("%Y-%m-%d %H:%M") %>
+                </p>
+              </div>
+              <%= page.html %>
+              <p class="button">
+                <a href="/<%= name %>">
+                  <img src="/img/button.png">
+                </a>
+              </p>
+            </div>
+            <p>
+              <img src="/img/img.png">
+            </p>
+          </div>
+        <% end %>
+      <% else %>
+        <small>
+          <a href="/">タイムラインへ</a>
+        </small>
+      <% end %>
+    EOS
   end
-else 
-  %><small><a href="/">タイムラインへ</a></small><%
-end
-%>
-EOS
-  end
-  
+
   class WikiTofu < Tofu::Tofu
-    ERB.new(<<EOS).def_method(self, 'to_html(context)')
-<% page = get_page(context) %>
-<% unless @session.listing?(context) %><%= page.html %><% end %>
-<% if @session.login %>
- <% if @session.listing?(context) %>
-  <small><a href='javascript:open_edit("edit-<%=h tofu_id %>")'>新しく書く</a></small>
-  <div id='edit-<%=h tofu_id %>'style='display:none;'>
- <% end %>
-<%= form('text', {}, context) %>
-<textarea name='text' rows="8" cols="40"><%=h page.src %></textarea>
-<p><input type='submit' name='ok' value='OK'/></p>
-</form>
-</div>
-<% end %>
-EOS
+    ERB.new(<<-EOS).def_method(self, 'to_html(context)')
+      <% page = get_page(context) %>
+      <% unless @session.listing?(context) %>
+        <%= page.html %>
+      <% end %>
+      <% if @session.login %>
+        <%= form('text', {}, context) %>
+          <textarea name='text' placeholder="ここにメッセージをかいてね"><%=h page.src %></textarea>
+          <input class='submit' type='submit' name='ok' value='OK'/>
+        </form>
+        <p>(<%= a('change', {}, context) %>名前かえたい</a>)</p>
+      <% end %>
+    EOS
 
     def to_name(context)
       path = context.req.path_info.dup
@@ -214,13 +221,10 @@ EOS
       context.res.set_redirect(WEBrick::HTTPStatus::MovedPermanently,
                                action(context))
     end
-    
+
     def get_page(context)
       name = to_name(context)
       @session.book[name]
     end
   end
 end
-
-
-

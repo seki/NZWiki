@@ -37,7 +37,7 @@ module NZWiki
   class Page
     def initialize(info)
       info = {} unless info
-      text = info[:src] || 'empty page'
+      text = info[:src] || ''
       author = info[:author] || 'unknown'
       mtime = info[:mtime] || Time.now
       update(text, author)
