@@ -39,7 +39,7 @@ end
 NZWiki::NZSession.book = book
 NZWiki::NZSession.store = store
 
-# WEBrick::Daemon.start unless $DEBUG
+WEBrick::Daemon.start unless $DEBUG
 tofu = Tofu::Bartender.new(NZWiki::NZSession, 'nz_8083_2')
 s = WEBrick::HTTPServer.new(:Port => 8083)
 s.mount("/", Tofu::Tofulet, tofu)
