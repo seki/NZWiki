@@ -40,7 +40,7 @@ module NZWiki
       text = info[:src] || 'empty page'
       author = info[:author] || 'unknown'
       mtime = info[:mtime] || Time.now
-      update(text, author)
+      update(text, author, mtime)
     end
     attr_reader :src, :html, :warnings, :author, :mtime
 
@@ -54,7 +54,7 @@ module NZWiki
     end
 
     def to_hash
-      {:src => @src, :author => @author }
+      {:src => @src, :author => @author, :mtime => @mtime }
     end
   end
 end
