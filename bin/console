@@ -7,22 +7,33 @@ require "nzwiki"
 require 'webrick'
 require 'webrick/httpserver'
 
-store = NZWiki::Store.new(Drip.new(nil), 'rick')
+store = NZWiki::Store.new(Drip.new('nzwiki_db'), 'rick')
 book = NZWiki::Book.new(store)
-auth = [{:question => 'きずぐすりで回復するのは何ダメージ？',
-          :choose => ['30', '20', '40', '10']},
+auth = [{:question => 'プラターヌで引ける枚数は？',
+          :answer => ['7']},
+        {:question => 'ティエルノで引ける枚数は？',
+          :answer => ['3']},
+        {:question => 'きずぐすりで回復するのは何ダメージ？',
+          :answer => ['30', '20', '40', '10']},
         {:question => 'シェイミEX XY6のタイプは？',
-          :choose => ['無色', 'ひこう', '草', 'ノーマル']},
+          :answer => ['無色', 'ひこう', '草', 'ノーマル']},
         {:question => '最初の手札の枚数は？',
-          :choose => ['7']},
+          :answer => ['7']},
         {:question => 'シェイミEXのセットアップは手札が何枚になるまで引く？',
-          :choose => ['6']},
+          :answer => ['6']},
+        {:question => 'フウロで持ってこれないのは？',
+          :answer => ['エネルギー', 'グッズ', 'サポート', 'スタジアム']},
+        {:question => '禁止になったXYのカードは？',
+          :answer => ['フラダリの奥の手', '探求者', 'ポケモンキャッチャー', 'フラダリ']},
         {:question => 'シェイミEX XY6のHPは？',
-          :choose => ['110']},
+          :answer => ['110']},
        ]
-auth.each do |it|
-  num = store.auth_create
-  store.auth_set(num, it)
+x = store.auth_get(1)
+unless x
+  auth.each do |it|
+    num = store.auth_create
+    store.auth_set(num, it)
+  end
 end
 
 NZWiki::NZSession.book = book
