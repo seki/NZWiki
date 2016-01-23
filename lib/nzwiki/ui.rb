@@ -223,14 +223,19 @@ module NZWiki
           <textarea name='text' placeholder="ここにメッセージをかいてね"><%=h page.src %></textarea>
           <input class='submit' type='submit' name='ok' value='OK'/>
         </form>
-        <p>(<%= a('change', {}, context) %>名前かえたい</a>)</p>
       <% end %>
+      <p>(<%= a('change', {}, context) %>名前かえたい</a>)</p>
     EOS
 
     def to_name(context)
       path = context.req.path_info.dup
       path[0] = '' if path[0] == '/'
       path == '' ? @session.book.new_page_name : path
+    end
+
+    def do_change(context, params)
+      @session.user = nil
+      @session.login = false
     end
 
     def do_text(context, params)
