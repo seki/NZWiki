@@ -21,17 +21,27 @@ module NZWiki
       @store = @@store
       @base = BaseTofu.new(self)
       @login = false
+      nazo_setup
     end
-    attr_reader :book, :store
-    attr_accessor :login, :user
+    attr_reader :book, :store, :nazo, :login, :user
     
+    def expires
+      Time.now + 5 * 60
+    end
+
     def has_username?
       not @user.to_s.empty?
+    end
+
+    def login=(value)
+      @login = value
+      nazo_setup
     end
     
     def user=(value)
       @hint = value
       @user = value
+      nazo_setup
     end
     
     def lookup_view(context)
@@ -40,6 +50,10 @@ module NZWiki
 
     def listing?(context)
       context.req.path_info == '/'
+    end
+    
+    def nazo_setup
+      @nazo = @store.auth_any(3)
     end
   end
   
@@ -51,19 +65,39 @@ module NZWiki
 <style type="text/css" media="screen">
 body {
     font-family: Helvetica;
-    background: #fef5da;
+    background: #1c2f56;
     color: #000000;
 }
 
-.UserTofu {
-    background: #eec;
-    font-size: 80%;
-    width: 100%;
+a:link { 
+    color: #4b2311;
+}
+a:visited { 
+    color: #4b2311;
 }
 
-.list_entry.ListInfo {
-    font-size: 50 %;
-    foreground: #aaa;
+hr {
+    height: 1px;
+    border: none;
+    border-top: 1px #000000 dotted;
+}
+
+.UserTofu {
+    background: #D2b469;
+    font-size: 80%;
+}
+
+.card {
+    border-radius: 0.5em;
+    border: solid 0.5em #aaa;
+    background: #e6d1b7;
+    width: -1em;
+    color: #000;
+}
+
+.card.ListInfo {
+    font-size: 30 %;
+    color: #eee;
 }
 
 </style>
@@ -74,14 +108,14 @@ document.getElementById(x).style.display = "block";
 </script>
 </head>
 <body>
-<div class='UserTofu'>
-<%= @user.to_html(context) %>
+<div class=card>
+<div class=ListInfo><%= @user.to_html(context) %></div>
 <% if session.has_username? %>
-<% unless session.login %><%= @prompt.to_html(context) %><% end %>
+<% if session.login %><%= @wiki.to_html(context) %>
+<% else  %><%= @prompt.to_html(context) %><% end %>
 <% end %>
 </div>
 <hr />
-<%= @wiki.to_html(context) %>
 <%= @list.to_html(context) %>
 </body></html>
 EOS
@@ -92,6 +126,7 @@ EOS
       @wiki = WikiTofu.new(session)
       @list = ListTofu.new(session)
     end
+    attr_reader :prompt
   end
   
   class UserTofu < Tofu::Tofu
@@ -100,7 +135,7 @@ EOS
 <%=form('user', {}, context)%>
 プレイヤー名: <input class='enter' type='text' size='8' name='user' value='<%= @session.user %>'/></form>
 <% else %>
-<%=h @session.user %> さんのターン！<small>(<%=a('change', {}, context)%>名前かえたい</a>)</small>
+<small><%=h @session.user %> さんのターン！<small>(<%=a('change', {}, context)%>名前かえたい</a>)</small></small>
 <% end %>
 EOS
     def initialize(session)
@@ -117,19 +152,24 @@ EOS
       user = user.force_encoding('utf-8') if user
       @session.login = false
       @session.user = user
+      context.res.set_redirect(WEBrick::HTTPStatus::MovedPermanently,
+                               action(context))
     end
   end
   
   class PromptTofu < Tofu::Tofu
     ERB.new(<<EOS).def_method(self, 'to_html(context)')
+<% nazo = @session.nazo.first %>
+<% if nazo %>
 <p>
 <%=form('prompt', {}, context)%>
-<%=h @nazo[:question] %><%
-  if @nazo[:choose].size == 1
+残り<%= @session.nazo.size %>問
+<%=h nazo[:question] %><%
+  if nazo[:answer].size == 1
 %><input class='enter' type='text' size='40' name='answer' value='' autocomplete='off' autofocus/><%
   else
 %><select name='answer' autofocus><%
-    @nazo[:choose].sort_by {|x| Integer(x) rescue rand}.each do |x| 
+    nazo[:answer].sort_by {|x| Integer(x) rescue rand}.each do |x| 
 %><option value="<%=h x %>"><%=h x %></option><%
     end
 %></select><input class='submit' type='submit' value='OK' /><%
@@ -137,27 +177,30 @@ EOS
 %>
 </form>
 </p>
+<% end %>
 EOS
     def initialize(session)
       super(session)
-      @nazo = get_nazo
     end
   
     def do_prompt(context, params)
       answer ,= params['answer']
       it = answer.force_encoding('utf-8') if answer
-      if @nazo[:choose][0] == it
-        @session.login = true
+      nazo = @session.nazo.first
+      if nazo[:answer][0] == it
+        @session.nazo.shift
+        if @session.nazo.empty?
+          @session.login = true
+        end
+      else
+        @session.nazo_setup
       end
-      @nazo = get_nazo
+      context.res.set_redirect(WEBrick::HTTPStatus::MovedPermanently,
+                               action(context))
     end
     
     def tofu_id
       'prompt'
-    end
-    
-    def get_nazo
-      @session.store.auth_any
     end
   end
 
@@ -167,10 +210,10 @@ EOS
 if @session.listing?(context)
   @session.book.recent_names.each do |name|
     page = @session.book[name]
-%><div class='list_entry'>
+%><div class='card'>
+    <div class='ListInfo'><small><%=h page.author %> <%=h page.mtime.strftime("%Y-%m-%d %H:%M:%S") %> <a href="/<%=name%>">書き直す</a></small></div>
     <%= page.html%>
-    <div class='ListInfo'><small><%=h page.author %> <%=h page.mtime.strftime("%Y-%m-%d") %> <a href="/<%=name%>">書き直す</a></small></div>
-  </div><%
+  </div><hr /> <%
   end
 else 
   %><small><a href="/">タイムラインへ</a></small><%
@@ -181,19 +224,26 @@ EOS
   
   class WikiTofu < Tofu::Tofu
     ERB.new(<<EOS).def_method(self, 'to_html(context)')
-<% page = get_page(context) %>
-<% unless @session.listing?(context) %><%= page.html %><% end %>
-<% if @session.login %>
- <% if @session.listing?(context) %>
-  <small><a href='javascript:open_edit("edit-<%=h tofu_id %>")'>新しく書く</a></small>
+<%
+  page = get_page(context)
+  unless @session.listing?(context) 
+%><%= page.html %><% 
+  end 
+  if @session.login 
+%><div class=ListInfo >
+    <a href='javascript:open_edit("edit-<%=h tofu_id %>")'>
+      <% if @session.listing?(context) %>ドロー<% else %>編集する<% end %>
+    </a>
+  </div>
   <div id='edit-<%=h tofu_id %>'style='display:none;'>
- <% end %>
-<%= form('text', {}, context) %>
-<textarea name='text' rows="8" cols="40"><%=h page.src %></textarea>
-<p><input type='submit' name='ok' value='OK'/></p>
-</form>
-</div>
-<% end %>
+    <%= form('text', {}, context) %>
+      <textarea name='text' rows="8" cols="40"><%=h page.src %></textarea>
+      <p><input type='submit' name='ok' value='OK'/></p>
+    </form>
+  </div><%
+  else
+%><p>なぞなぞをといて</p><%
+  end %>
 EOS
 
     def to_name(context)
