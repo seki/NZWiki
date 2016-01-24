@@ -75,10 +75,10 @@ module NZWiki
                 <% end %>
               <% end %>
               <%= @wiki.to_html(context) %>
+              <p class="topimg">
+                <img src="/img/topimg.png">
+              </p>
             </div>
-            <p class="UserTofuImg">
-              <img src="/img/img.png">
-            </p>
             <%= @list.to_html(context) %>
           </div>
         </body>
@@ -104,7 +104,7 @@ module NZWiki
         </form>
       <% else %>
         <p>
-          <%=h @session.user %> さんのターン！
+          <%=h @session.user %>さんのターン！
         </p>
       <% end %>
     EOS
@@ -182,8 +182,8 @@ module NZWiki
       <% if @session.listing?(context) %>
         <% @session.book.recent_names.each do |name| %>
           <% page = @session.book[name] %>
-          <% entry_class = "list_entry_" + (page.mtime.to_i % 2).to_s %>
-          <div class='list_entry_wrapper <%= entry_class %>'>
+          <% entry_kind = page.mtime.to_i % 2 %>
+          <div class='list_entry_wrapper list_entry_<%= entry_kind %>'>
             <div class='list_entry'>
               <div class='ListInfo'>
                 <p class="author">
@@ -196,13 +196,14 @@ module NZWiki
               <%= page.html %>
               <p class="button">
                 <a href="/<%= name %>">
-                  <img src="/img/button.png">
+                  <img src="/img/button01.png">
                 </a>
               </p>
+              <p class="list_entry_img">
+                <img src="/img/img<%= entry_kind %>.png">
+              </p>
             </div>
-            <p>
-              <img src="/img/img.png">
-            </p>
+            
           </div>
         <% end %>
       <% else %>
@@ -225,7 +226,7 @@ module NZWiki
           <input class='submit' type='submit' name='ok' value='OK'/>
         </form>
       <% end %>
-      <p>(<%= a('change', {}, context) %>名前かえたい</a>)</p>
+      <p class="change_name"><%= a('change', {}, context) %>なまえをかえる</a></p>
     EOS
 
     def to_name(context)

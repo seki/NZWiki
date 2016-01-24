@@ -50,10 +50,21 @@ box-sizing: border-box;
 -o-box-sizing: border-box;
 }
 
+
+/* ==========================================================================
+   font
+   ========================================================================== */
+@font-face {
+	font-family: "misaki";
+	src: local("misaki");
+	src: url("../font/misaki_gothic.ttf");}
+
+
 /* ==========================================================================
    layout
    ========================================================================== */
 body {
+	padding: 20px 0px 50px 0px;
 	color: #aa4c0f;
 	font-size: 16px;
 	font-family: 'Helvetica', Helvetica Neue, Arial, sans-serif;
@@ -61,7 +72,8 @@ body {
 	line-height: 1.6em;
 	text-align: center;
 	-webkit-text-size-adjust: 100%;
-	background: url("../img/bg.png");
+	background: #fdebc1 url("../img/bg01.png") center top;
+
 }
 
 /* a
@@ -81,6 +93,10 @@ a:focus {
 	color: #;
 	text-decoration: none;
 }
+.UserTofu a {
+	color: #ffffff;
+	font-size: 70%;
+}
 
 /* selection
 ================================================== */
@@ -93,7 +109,7 @@ div#wrapper {
 	position: relative;
 	width: 640px;
 	margin: 0px auto;
-	padding-top: 30px;
+	padding: 20px;
 	text-align: left;
 }
 
@@ -101,46 +117,62 @@ div#wrapper {
 ================================================== */
 .UserTofu {
 	position: relative;
-	padding: 50px 20px;
-	margin-bottom: 20px;
+	padding: 50px 20px 80px 20px;
+	margin-bottom: 180px;
+	font-family: "misaki";
 	text-align: center;
 	border: 20px solid #ffffff;
 	border-radius: 10px;
-	background: #ffcc61;
+	color: #ffffff;
+	letter-spacing: 1px;
+	background: transparent url("../img/bg02.png");
+	-webkit-box-shadow: 0 5px 6px -6px #e6b268;
+       -moz-box-shadow: 0 5px 6px -6px #e6b268;
+            box-shadow: 0 5px 6px -6px #e6b268;
 }
 .UserTofu:before {
 	display: block;
 	position: absolute;
-	bottom: -30px;
-	left: 47%;
+	bottom: -33px;
+	left: 20%;
 	content: "";
 	width: 0;
 	border-color: #ffffff transparent transparent;
 	border-style: solid;
-	border-width: 15px 15px 0;
+	border-width: 20px 20px 0;
+
 }
 .UserTofu p {
+	font-size: 120%;
 	margin-bottom: 20px;
 }
 .UserTofu input,
 .UserTofu select,
 .UserTofu textarea {
-	padding: 10px;
+	padding: 20px;
 	border-radius: 10px;
-	border-top: 1px solid #c0bdbd;
-	border-left: 1px solid #c0bdbd;
+	border-top: 2px solid #c0bdbd;
+	border-left: 2px solid #c0bdbd;
 }
-.UserTofu input {
+.UserTofu input.submit {
+	color: #ffffff;
 	cursor: pointer;
+}
+.UserTofu select {
+	margin-right: 10px;
+	margin-bottom: 10px;
 }
 .UserTofu textarea {
 	width: 100%;
 	margin: 0px auto;
 	height: 200px;
 	margin-bottom: 20px;
+	font-family: 'Helvetica', Helvetica Neue, Arial, sans-serif;
 }
-.UserTofuImg {
-	text-align: center;
+.topimg {
+	position: absolute;
+	bottom: -210px;
+	left: 35%;
 }
 input.submit {
 	border: 0px;
@@ -148,38 +180,61 @@ input.submit {
     height: 65px;
     margin-bottom: 10px;
     text-indent: -9999px;
-    background: url("../img/button.png") left top no-repeat;
+    background: url("../img/button02.png") left top no-repeat;
 }
+.change_name {
+	margin-top: 20px;
+	float: right;
+}
+
 /* list_entry
 ================================================== */
 .list_entry_wrapper {
 	text-align: center;
+	margin-bottom: 130px;
 }
 .list_entry {
 	position: relative;
 	word-wrap: break-word;
-	margin-bottom: 20px;
 	padding: 20px 20px 4em 20px;
 	text-align: left;
-	border: 20px solid #aa4c0f;
+	border: 20px solid #d69c4a;
 	border-radius: 10px;
 	background: #ffffff;
 }
 .list_entry:before {
 	display: block;
 	position: absolute;
-	bottom: -30px;
+	bottom: -33px;
 	left: 47%;
 	content: "";
 	width: 0;
-	border-color: #aa4c0f transparent transparent;
+	border-color: #d69c4a transparent transparent;
 	border-style: solid;
-	border-width: 15px 15px 0;
+	border-width: 20px 20px 0;
 }
 .list_entry .button {
 	position: absolute;
 	bottom: 20px;
 	right: 20px;
+	z-index: 9999;
+	cursor: pointer;
+}
+.list_entry_0 .list_entry {
+	border: 20px solid #a5634a;
+}
+.list_entry_0 .list_entry:before {
+	border-color: #a5634a transparent transparent;
+}
+.list_entry_0 .list_entry_img {
+	position: absolute;
+	bottom: -170px;
+	right: 55px;
+}
+.list_entry_1 .list_entry_img {
+	position: absolute;
+	bottom: -170px;
+	left: 30px;
 }
 
 /* ListInfo
@@ -191,10 +246,13 @@ input.submit {
 .ListInfo .author {
 	float: left;
 	color: #ea7349;
+	font-family: "misaki";
 }
 .ListInfo .time {
 	float: right;
 	color: #e4ab1f;
+	font-family: 
+	"misaki";
 }
 
 /* ==========================================================================
@@ -204,11 +262,7 @@ input.submit {
 @media (max-width: 767px) {
 
 	body {
-	font-size: 25px;
+	font-size: 26px;
 	}
-	div#wrapper {
-	padding: 20px 20px 0px 20px;
-	}
-
 
 }
