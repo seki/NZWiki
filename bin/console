@@ -42,13 +42,12 @@ NZWiki::NZSession.store = store
 tofu = Tofu::Bartender.new(NZWiki::NZSession, 'nz_8083_2')
 s = WEBrick::HTTPServer.new(:Port => 8083)
 s.mount("/", Tofu::Tofulet, tofu)
-s.mount('/img/button01.png', WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/assets/img/button01.png')
-s.mount('/img/button02.png', WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/assets/img/button02.png')
-s.mount('/img/topimg.png',    WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/assets/img/topimg.png')
-s.mount('/img/img0.png',    WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/assets/img/img0.png')
-s.mount('/img/img1.png',    WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/assets/img/img1.png')
-s.mount('/img/bg01.png',     WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/assets/img/bg01.png')
-s.mount('/img/bg02.png',     WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/assets/img/bg02.png')
-s.mount('/css/nzwiki.css', WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/assets/css/nzwiki.css')
-s.mount('/font/misaki_gothic.ttf', WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/assets/font/misaki_gothic.ttf')
+
+Dir['./lib/nzwiki/assets/**/*'].each do |file_path|
+  next if File.directory?(file_path)
+
+  asset_path = file_path.sub(%r{.+/assets}, "")
+  s.mount(asset_path, WEBrick::HTTPServlet::FileHandler, file_path)
+end
+
 s.start
