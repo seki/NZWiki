@@ -62,11 +62,12 @@ module NZWiki
       <html>
         <head>
           <meta name="viewport" content="width=640" />
-          <title>NZWiki</title>
-          <link href="/css/nzwiki.css" rel="stylesheet">
+          <title>とちぎポケカ掲示板</title>
+          <link href="/css/css.css" rel="stylesheet">
         </head>
         <body>
           <div id="wrapper">
+            <h1>とちぎポケカ掲示板</h1>
             <div class='UserTofu'>
               <%= @user.to_html(context) %>
               <% if session.has_username? %>
@@ -75,8 +76,8 @@ module NZWiki
                 <% end %>
               <% end %>
               <%= @wiki.to_html(context) %>
-              <p class="topimg">
-                <img src="/img/topimg.png">
+              <p class="topimg shake-slow">
+                <img src="/img/topimg.png" class="shake">
               </p>
             </div>
             <%= @list.to_html(context) %>
@@ -196,10 +197,10 @@ module NZWiki
               <%= page.html %>
               <p class="button">
                 <a href="/<%= name %>">
-                  <img src="/img/button01.png">
+                  <img src="/img/button_fix.png" alt="なおす">
                 </a>
               </p>
-              <p class="list_entry_img">
+              <p class="list_entry_img shake-rotate">
                 <img src="/img/img<%= entry_kind %>.png">
               </p>
             </div>
@@ -207,9 +208,7 @@ module NZWiki
           </div>
         <% end %>
       <% else %>
-        <small>
-          <a href="/">タイムラインへ</a>
-        </small>
+          <p class="button"><a href="/"><img src="/img/button_back.png" alt="もどる"></a></p>
       <% end %>
     EOS
   end
@@ -218,7 +217,7 @@ module NZWiki
     ERB.new(<<-EOS).def_method(self, 'to_html(context)')
       <% page = get_page(context) %>
       <% unless @session.listing?(context) %>
-        <%= page.html %>
+        <div class="page"><%= page.html %></div>
       <% end %>
       <% if @session.login %>
         <%= form('text', {}, context) %>
