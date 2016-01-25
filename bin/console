@@ -42,8 +42,12 @@ NZWiki::NZSession.store = store
 tofu = Tofu::Bartender.new(NZWiki::NZSession, 'nz_8083_2')
 s = WEBrick::HTTPServer.new(:Port => 8083)
 s.mount("/", Tofu::Tofulet, tofu)
-s.mount('/img/button.png', WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/img/button.png')
-s.mount('/img/img.png',    WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/img/img.png')
-s.mount('/img/bg.png',     WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/img/bg.png')
-s.mount('/css/nzwiki.css', WEBrick::HTTPServlet::FileHandler, './lib/nzwiki/css/nzwiki.css')
+
+Dir['./lib/nzwiki/assets/**/*'].each do |file_path|
+  next if File.directory?(file_path)
+
+  asset_path = file_path.sub(%r{.+/assets}, "")
+  s.mount(asset_path, WEBrick::HTTPServlet::FileHandler, file_path)
+end
+
 s.start
