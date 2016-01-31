@@ -183,7 +183,7 @@ module NZWiki
       <% if @session.listing?(context) %>
         <% @session.book.recent_names.each do |name| %>
           <% page = @session.book[name] %>
-          <% entry_kind = page.mtime.to_i % 2 %>
+          <% entry_kind = page.mtime.to_i % 3 %>
           <div class='list_entry_wrapper list_entry_<%= entry_kind %>'>
             <div class='list_entry'>
               <div class='ListInfo'>

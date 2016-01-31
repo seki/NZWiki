@@ -275,6 +275,18 @@ h1 {
 	bottom: -170px;
 	left: 30px;
 }
+.list_entry_2 .list_entry_img {
+	position: absolute;
+	bottom: -170px;
+	right: 110px;
+}
+.list_entry_2 .list_entry {
+	border: 20px solid #bc640f;
+}
+.list_entry_2 .list_entry:before {
+	left: 35%;
+	border-color: #bc640f transparent transparent;
+}
 
 /* ListInfo
 ================================================== */
