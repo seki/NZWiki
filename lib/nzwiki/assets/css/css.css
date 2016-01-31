@@ -290,6 +290,9 @@ h1 {
 	left: 35%;
 	border-color: #c96c11 transparent transparent;
 }
+.list_entry_2 .list_entry {
+	padding: 20px 20px 5.8em 20px;
+}
 
 /* ListInfo
 ================================================== */
@@ -316,10 +319,13 @@ h1 {
 @media (max-width: 767px) {
 
 	body {
-	font-size: 26px;
+		font-size: 26px;
 	}
 	.list_entry {
-	padding: 20px 20px 3.5em 20px;
+		padding: 20px 20px 3em 20px;
+	}
+	.list_entry_2 .list_entry {
+		padding: 20px 20px 3.5em 20px;
 	}
 
 }
