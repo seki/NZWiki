@@ -100,11 +100,11 @@ module NZWiki
     ERB.new(<<-EOS).def_method(self, 'to_html(context)')
       <% unless @session.has_username? %>
         <%= form('user', {}, context) %>
-          <p>プレイヤー名</p>
+          <p class="font">プレイヤー名</p>
           <input class='enter' type='text' name='user' value='<%= @session.user %>'/>
         </form>
       <% else %>
-        <p>
+        <p class="font">
           <%=h @session.user %>さんのターン！
         </p>
       <% end %>
@@ -225,7 +225,7 @@ module NZWiki
           <input class='submit' type='submit' name='ok' value='OK'/>
         </form>
       <% end %>
-      <p class="change_name"><%= a('change', {}, context) %>なまえをかえる</a></p>
+      <p class="change_name font"><%= a('change', {}, context) %>なまえをかえる</a></p>
     EOS
 
     def to_name(context)

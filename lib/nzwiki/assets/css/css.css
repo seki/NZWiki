@@ -42,11 +42,11 @@ table {
 *,
 *:before,
 *:after {
-box-sizing: border-box;
--webkit-box-sizing: border-box;
--moz-box-sizing: border-box;
--ms-box-sizing: border-box;
--o-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	-o-box-sizing: border-box;
 }
 
 
@@ -57,7 +57,6 @@ box-sizing: border-box;
 	font-family: "misaki";
 	src: local("misaki");
 	src: url("../font/misaki_gothic.ttf");}
-
 
 /* ==========================================================================
    layout
@@ -128,7 +127,6 @@ h1 {
 	position: relative;
 	padding: 50px 20px 80px 20px;
 	margin-bottom: 180px;
-	font-family: "misaki";
 	text-align: center;
 	border: 20px solid #ffffff;
 	border-radius: 10px;
@@ -152,8 +150,12 @@ h1 {
 
 }
 .UserTofu p {
-	font-size: 120%;
+	font-size: 110%;
 	margin-bottom: 20px;
+}
+.UserTofu p.font {
+	font-size: 120%;
+	font-family: "misaki";
 }
 .UserTofu .page {
 	padding: 20px;
@@ -238,7 +240,7 @@ h1 {
 	position: relative;
 	padding: 20px 20px 5em 20px;
 	text-align: left;
-	border: 20px solid #a97128;
+	border: 20px solid #bb7c01;
 	border-radius: 10px;
 	background: #ffffff;
 }
@@ -249,7 +251,7 @@ h1 {
 	left: 47%;
 	content: "";
 	width: 0;
-	border-color: #a97128 transparent transparent;
+	border-color: #bb7c01 transparent transparent;
 	border-style: solid;
 	border-width: 20px 20px 0;
 }
@@ -260,15 +262,16 @@ h1 {
 	z-index: 9999;
 }
 .list_entry_0 .list_entry {
-	border: 20px solid #6c331a;
+	border: 20px solid #a05432;
 }
 .list_entry_0 .list_entry:before {
-	border-color: #6c331a transparent transparent;
+	left: 37%;
+	border-color: #a05432 transparent transparent;
 }
 .list_entry_0 .list_entry_img {
 	position: absolute;
 	bottom: -170px;
-	right: 55px;
+	right: 80px;
 }
 .list_entry_1 .list_entry_img {
 	position: absolute;
@@ -281,11 +284,11 @@ h1 {
 	right: 110px;
 }
 .list_entry_2 .list_entry {
-	border: 20px solid #bc640f;
+	border: 20px solid #c96c11;
 }
 .list_entry_2 .list_entry:before {
 	left: 35%;
-	border-color: #bc640f transparent transparent;
+	border-color: #c96c11 transparent transparent;
 }
 
 /* ListInfo
@@ -314,6 +317,9 @@ h1 {
 
 	body {
 	font-size: 26px;
+	}
+	.list_entry {
+	padding: 20px 20px 3.5em 20px;
 	}
 
 }
