@@ -21,14 +21,16 @@ module NZWiki
       @store = @@store
       @base = BaseTofu.new(self)
       @login = false
+      @login_expires = Time.now
       nazo_setup
     end
-    attr_reader :book, :store, :nazo, :login, :user
-    
-    def expires
-      Time.now + 5 * 60
-    end
+    attr_reader :book, :store, :nazo, :user, :login_expires
 
+    def login
+      @login = false if @login_expires < Time.now
+      @login
+    end
+    
     def has_username?
       not @user.to_s.empty?
     end
@@ -36,6 +38,7 @@ module NZWiki
     def login=(value)
       @login = value
       nazo_setup
+      @login_expires = Time.now + 300 if @login
     end
     
     def user=(value)
@@ -54,6 +57,8 @@ module NZWiki
     
     def nazo_setup
       @nazo = @store.auth_any(3)
+      @nazo.unshift({:question => "#{user} さんのすきなポケモンは？",
+                      :answer => []})
     end
   end
 
@@ -135,7 +140,7 @@ module NZWiki
         <% nazo = @session.nazo.first %>
         <%= form('prompt', {}, context) %>
           <p><%=h nazo[:question] %></p>
-          <% if nazo[:answer].size == 1 %>
+          <% if nazo[:answer].size <= 1 %>
             <input class='enter' type='text' name='answer' value='' autocomplete='off' autofocus/>
           <% else %>
             <select name='answer' autofocus>
@@ -151,13 +156,18 @@ module NZWiki
 
     def initialize(session)
       super(session)
+      @prompt_expires = Time.now
     end
 
     def do_prompt(context, params)
       answer ,= params['answer']
       it = answer.force_encoding('utf-8') if answer
       nazo = @session.nazo.first
-      if nazo[:answer][0] == it
+      if nazo[:answer].empty?
+        @memo = it
+        @session.nazo.shift
+        @prompt_expires = Time.now + 30
+      elsif nazo[:answer][0] == it and @prompt_expires > Time.now
         @session.nazo.shift
         if @session.nazo.empty?
           @session.login = true
