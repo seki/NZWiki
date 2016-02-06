@@ -14,6 +14,13 @@ module NZWiki
       Drip.time_to_key(Time.now).to_s(36)
     end
 
+    def timeline_page_name?(name)
+      time = Drip.key_to_time(name.to_i(36))
+      (Time.local(2016) .. Time.now).include?(time)
+    rescue
+      false
+    end
+
     def [](name)
       @monitor.synchronize do
         @pages[name] || Page.new(@store[name])
@@ -30,7 +37,7 @@ module NZWiki
     end
 
     def recent_names
-      @store.each_page
+      @store.each_page.lazy.select {|x| timeline_page_name?(x)}
     end
   end
 
