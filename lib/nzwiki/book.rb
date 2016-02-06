@@ -29,8 +29,8 @@ module NZWiki
       end
     end
 
-    def recent_names(sz=10)
-      @store.each_page.to_a
+    def recent_names
+      @store.each_page
     end
   end
 

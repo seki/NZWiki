@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 require 'tofu'
+require 'nzwiki/enum'
 
 module NZWiki
   class NZSession < Tofu::Session
     @@book = nil
     @@store = nil
+    @@fav = {}
 
     def self.book=(book)
       @@book = book
@@ -191,7 +193,7 @@ module NZWiki
   class ListTofu < Tofu::Tofu
     ERB.new(<<-EOS).def_method(self, 'to_html(context)')
       <% if @session.listing?(context) %>
-        <% @session.book.recent_names.each do |name| %>
+        <% @session.book.recent_names.slice(@cursor * 7, 7) do |name| %>
           <% page = @session.book[name] %>
           <% entry_kind = page.mtime.to_i % 3 %>
           <div class='list_entry_wrapper list_entry_<%= entry_kind %>'>
@@ -217,10 +219,29 @@ module NZWiki
             
           </div>
         <% end %>
+        <% if @cursor > 0 %>
+          いま<%=h @cursor + 1%> ページ</a>
+          <%= a('top', {}, context)%>はじめから</a>
+        <% else %>
+        <% end %>
+        <%= a('more', {}, context)%>もっとふるいの</a>
       <% else %>
           <p class="button"><a href="/"><img src="/img/button_back.png" alt="もどる"></a></p>
       <% end %>
     EOS
+
+    def initialize(session)
+      super(session)
+      @cursor = 0
+    end
+
+    def do_more(context, params)
+      @cursor += 1
+    end
+
+    def do_top(context, params)
+      @cursor = 0
+    end
   end
 
   class WikiTofu < Tofu::Tofu
@@ -257,6 +278,7 @@ module NZWiki
         text = text.force_encoding('utf-8')
         @session.book.update(to_name(context), text, @session.user)
       rescue
+        p $!
       end
       context.res.set_redirect(WEBrick::HTTPStatus::MovedPermanently,
                                action(context))
