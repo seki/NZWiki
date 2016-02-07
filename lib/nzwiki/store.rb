@@ -36,6 +36,10 @@ module NZWiki
       tag_to_key(tag)
     end
 
+    def history(k)
+      @drip.head(10, page_key(k)).collect {|k,v| v}
+    end
+
     def each_page
       return to_enum(__method__) unless block_given?
 

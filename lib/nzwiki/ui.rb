@@ -200,7 +200,7 @@ module NZWiki
             <div class='list_entry'>
               <div class='ListInfo'>
                 <p class="author">
-                  <%=h page.author %>
+                  <%=h author(page) %>
                 </p>
                 <p class="time">
                   <%=h page.mtime.strftime("%Y-%m-%d %H:%M") %>
@@ -241,6 +241,10 @@ module NZWiki
 
     def do_top(context, params)
       @cursor = 0
+    end
+
+    def author(page)
+      page.author.join(", ")
     end
   end
 

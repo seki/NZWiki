@@ -45,7 +45,7 @@ module NZWiki
     def initialize(info)
       info = {} unless info
       text = info[:src] || ''
-      author = info[:author] || 'unknown'
+      author = info[:author] || []
       mtime = info[:mtime] || Time.now
       update(text, author, mtime)
     end
@@ -56,6 +56,7 @@ module NZWiki
       document = Kramdown::Document.new(text)
       @html = document.to_html
       @warnings = document.warnings
+      author = [author, @author].compact.flatten.uniq #FIXME
       @author = author
       @mtime = mtime
     end
