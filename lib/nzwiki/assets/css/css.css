@@ -261,6 +261,18 @@ h1 {
 	right: 20px;
 	z-index: 9999;
 }
+.list_entry_m .list_entry {
+	border: 20px solid #a05432;
+}
+.list_entry_m .list_entry:before {
+	left: 37%;
+	border-color: #a05432 transparent transparent;
+}
+.list_entry_m .list_entry_img {
+	position: absolute;
+	bottom: -170px;
+	right: 80px;
+}
 .list_entry_0 .list_entry {
 	border: 20px solid #a05432;
 }

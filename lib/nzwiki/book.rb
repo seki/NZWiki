@@ -39,6 +39,10 @@ module NZWiki
     def recent_names
       @store.each_page.lazy.select {|x| timeline_page_name?(x)}
     end
+
+    def history(name)
+      @store.history(name)
+    end
   end
 
   class Page

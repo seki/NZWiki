@@ -62,6 +62,22 @@ module NZWiki
       @nazo.unshift({:question => "#{user} さんのすきなポケモンは？",
                       :answer => []})
     end
+
+    def to_wiki_name(context)
+      path = context.req.path_info.dup
+      path[0] = '' if path[0] == '/'
+      path == '' ? @book.new_page_name : path
+    end
+
+    def get_wiki_page(context)
+      name = to_wiki_name(context)
+      @book[name]
+    end
+
+    def get_wiki_history(context)
+      name = to_wiki_name(context)
+      @book.history(name)
+    end
   end
 
   class BaseTofu < Tofu::Tofu
@@ -220,13 +236,38 @@ module NZWiki
           </div>
         <% end %>
         <% if @cursor > 0 %>
-          いま<%=h @cursor + 1%> ページ</a>
+          いま<%=h @cursor + 1%>ページ</a>
           <%= a('top', {}, context)%>はじめから</a>
         <% else %>
         <% end %>
-        <%= a('more', {}, context)%>もっとふるいの</a>
+        <%= a('more', {}, context)%>ふるいもの</a>
       <% else %>
           <p class="button"><a href="/"><img src="/img/button_back.png" alt="もどる"></a></p>
+          <% history = @session.get_wiki_history(context) %>
+          <% if history.size > 1 %>
+            <% entry_kind = 'm' %>
+            <div class='list_entry_wrapper list_entry_<%= entry_kind %>'>
+              <div class='list_entry'>
+                <% history.reverse_each do |rev| %>
+                  <div class='ListInfo'>
+                    <p class="author">
+                      <% auth ,= rev[:author] %>
+                      <%=h auth %>
+                    </p>
+                    <p class="time">
+                      <%=h rev[:mtime].strftime("%Y-%m-%d %H:%M") %>
+                    </p>
+                  </div>
+                  <pre>
+                    <%=h rev[:src] %>
+                  </pre>
+                <% end %>
+              <p class="list_entry_img shake-rotate">
+                <img src="/img/img<%= entry_kind %>.png">
+              </p>
+              </div>
+            </div>
+         <% end %>
       <% end %>
     EOS
 
@@ -244,17 +285,22 @@ module NZWiki
     end
 
     def author(page)
-      page.author.join(", ")
+      case page.author.size
+      when 1..2
+        page.author.join(", ")
+      else
+        "みんな"
+      end
     end
 
     def page_style(page)
-      page.author.size == 1 ? page.mtime.to_i % 2 + 1 : 0
+      page.author.size == 1 ? page.mtime.to_i % 3 : 'm'
     end
   end
 
   class WikiTofu < Tofu::Tofu
     ERB.new(<<-EOS).def_method(self, 'to_html(context)')
-      <% page = get_page(context) %>
+      <% page = @session.get_wiki_page(context) %>
       <% unless @session.listing?(context) %>
         <div class="page"><%= page.html %></div>
       <% end %>
@@ -267,12 +313,6 @@ module NZWiki
       <p class="change_name font"><%= a('change', {}, context) %>なまえをかえる</a></p>
     EOS
 
-    def to_name(context)
-      path = context.req.path_info.dup
-      path[0] = '' if path[0] == '/'
-      path == '' ? @session.book.new_page_name : path
-    end
-
     def do_change(context, params)
       @session.user = nil
       @session.login = false
@@ -284,17 +324,13 @@ module NZWiki
         text ,= params['text']
         return if text.nil? || text.empty?
         text = text.force_encoding('utf-8')
-        @session.book.update(to_name(context), text, @session.user)
+        name = @session.to_wiki_name(context)
+        @session.book.update(name, text, @session.user)
       rescue
         p $!
       end
       context.res.set_redirect(WEBrick::HTTPStatus::MovedPermanently,
                                action(context))
-    end
-
-    def get_page(context)
-      name = to_name(context)
-      @session.book[name]
     end
   end
 end
