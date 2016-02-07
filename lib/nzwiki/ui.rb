@@ -195,7 +195,7 @@ module NZWiki
       <% if @session.listing?(context) %>
         <% @session.book.recent_names.slice(@cursor * 7, 7) do |name| %>
           <% page = @session.book[name] %>
-          <% entry_kind = page.mtime.to_i % 3 %>
+          <% entry_kind = page_style(page) %>
           <div class='list_entry_wrapper list_entry_<%= entry_kind %>'>
             <div class='list_entry'>
               <div class='ListInfo'>
@@ -245,6 +245,10 @@ module NZWiki
 
     def author(page)
       page.author.join(", ")
+    end
+
+    def page_style(page)
+      page.author.size == 1 ? page.mtime.to_i % 2 + 1 : 0
     end
   end
 
