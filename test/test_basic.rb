@@ -88,13 +88,13 @@ class TestNZBook < Test::Unit::TestCase
     a << @book.new_page_name
     @book.update(a.last, 'world', 'foo')
 
-    ary = @book.recent_names
+    ary = @book.recent_names.to_a
     assert_equal(ary, [a[1], a[0]])
 
     @book.update(a[0], 'hello', 'foo')
-    assert_equal(@book.recent_names, [a[1], a[0]])
+    assert_equal(@book.recent_names.to_a, [a[1], a[0]])
 
     new_book = NZWiki::Book.new(@store)
-    assert_equal(new_book.recent_names, [a[1], a[0]])
+    assert_equal(new_book.recent_names.to_a, [a[1], a[0]])
   end
 end
