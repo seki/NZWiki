@@ -104,6 +104,7 @@ module NZWiki
               </p>
             </div>
             <%= @list.to_html(context) %>
+            <%= @history.to_html(context) %>
           </div>
         </body>
       </html>
@@ -115,6 +116,7 @@ module NZWiki
       @prompt = PromptTofu.new(session)
       @wiki = WikiTofu.new(session)
       @list = ListTofu.new(session)
+      @history = HistoryTofu.new(session)
     end
     attr_reader :prompt
   end
@@ -243,31 +245,6 @@ module NZWiki
         <%= a('more', {}, context)%>ふるいもの</a>
       <% else %>
           <p class="button"><a href="/"><img src="/img/button_back.png" alt="もどる"></a></p>
-          <% history = @session.get_wiki_history(context) %>
-          <% if history.size > 1 %>
-            <% entry_kind = 'm' %>
-            <div class='list_entry_wrapper list_entry_<%= entry_kind %>'>
-              <div class='list_entry'>
-                <% history.reverse_each do |rev| %>
-                  <div class='ListInfo'>
-                    <p class="author">
-                      <% auth ,= rev[:author] %>
-                      <%=h auth %>
-                    </p>
-                    <p class="time">
-                      <%=h rev[:mtime].strftime("%Y-%m-%d %H:%M") %>
-                    </p>
-                  </div>
-                  <pre>
-                    <%=h rev[:src] %>
-                  </pre>
-                <% end %>
-              <p class="list_entry_img shake-rotate">
-                <img src="/img/img<%= entry_kind %>.png">
-              </p>
-              </div>
-            </div>
-         <% end %>
       <% end %>
     EOS
 
@@ -296,6 +273,34 @@ module NZWiki
     def page_style(page)
       page.author.size == 1 ? page.mtime.to_i % 3 : 'm'
     end
+  end
+
+  class HistoryTofu < Tofu::Tofu
+    ERB.new(<<-EOS).def_method(self, 'to_html(context)')
+      <% unless @session.listing?(context) %>
+        <% history = @session.get_wiki_history(context) %>
+        <% if history.size > 1 %>
+           <div class='list_entry_wrapper list_entry_m'>
+            <div class='list_entry'>
+              <% history.reverse_each do |rev| %>
+                <div class='ListInfo'>
+                  <p class="author">
+                    <% auth ,= rev[:author] %>
+                    <%=h auth %>
+                  </p>
+                  <p class="time">
+                    <%=h rev[:mtime].strftime("%Y-%m-%d %H:%M") %>
+                  </p>
+                </div>
+                <pre>
+                  <%=h rev[:src] %>
+                </pre>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    EOS
   end
 
   class WikiTofu < Tofu::Tofu
