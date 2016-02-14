@@ -78,6 +78,10 @@ module NZWiki
       name = to_wiki_name(context)
       @book.history(name)
     end
+
+    def move_to_head
+      @base.list.do_top(nil, nil)
+    end
   end
 
   class BaseTofu < Tofu::Tofu
@@ -118,7 +122,7 @@ module NZWiki
       @list = ListTofu.new(session)
       @history = HistoryTofu.new(session)
     end
-    attr_reader :prompt
+    attr_reader :prompt, :list
   end
 
   class UserTofu < Tofu::Tofu
@@ -328,6 +332,7 @@ module NZWiki
         text = text.force_encoding('utf-8')
         name = @session.to_wiki_name(context)
         @session.book.update(name, text, @session.user)
+        @session.move_to_head
       rescue
         p $!
       end
