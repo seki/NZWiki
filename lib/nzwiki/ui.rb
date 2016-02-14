@@ -90,7 +90,7 @@ module NZWiki
         </head>
         <body>
           <div id="wrapper">
-            <h1>とちぎポケカ掲示板</h1>
+            <h1><a href="/">とちぎポケカ掲示板</a></h1>
             <div class='UserTofu'>
               <%= @user.to_html(context) %>
               <% if session.has_username? %>

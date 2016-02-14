@@ -91,7 +91,7 @@ a:link,
 a:visited {
 	color: #aa4c0f;
 }
-a:hover,  
+a:hover,
 a:active,
 a:focus {
 	text-decoration: none;
@@ -119,6 +119,16 @@ h1 {
 	font-family: "misaki";
 	letter-spacing: 1px;
 	text-align: center;
+}
+h1 a:link,
+h1 a:visited {
+	text-decoration: none;
+	color: #ffffff;
+}
+h1 a:hover,
+h1 a:active,
+h1 a:focus {
+	color: #a05432;
 }
 
 /* UserTofu
