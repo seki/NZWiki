@@ -234,7 +234,6 @@ module NZWiki
                 <img src="/img/img<%= entry_kind %>.png">
               </p>
             </div>
-            
           </div>
         <% end %>
         <% if @cursor > 0 %>
@@ -280,8 +279,7 @@ module NZWiki
       <% unless @session.listing?(context) %>
         <% history = @session.get_wiki_history(context) %>
         <% if history.size > 1 %>
-           <div class='list_entry_wrapper list_entry_m'>
-            <div class='list_entry'>
+           <div class='history_wrapper list_entry_m'>
               <% history.reverse_each do |rev| %>
                 <div class='ListInfo'>
                   <p class="author">
@@ -292,11 +290,8 @@ module NZWiki
                     <%=h rev[:mtime].strftime("%Y-%m-%d %H:%M") %>
                   </p>
                 </div>
-                <pre>
-                  <%=h rev[:src] %>
-                </pre>
+                <p class="history_text"><%=h rev[:src] %></p>
               <% end %>
-            </div>
           </div>
         <% end %>
       <% end %>
