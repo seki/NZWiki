@@ -236,12 +236,14 @@ module NZWiki
             </div>
           </div>
         <% end %>
-        <% if @cursor > 0 %>
-          いま<%=h @cursor + 1%>ページ</a>
-          <%= a('top', {}, context)%>はじめから</a>
-        <% else %>
-        <% end %>
-        <%= a('more', {}, context)%>ふるいもの</a>
+        <div class="pager">
+          <% if @cursor > 0 %>
+            <p class="pager_current">いま<%=h @cursor + 1%>ページ</a></p>
+            <p class="pager_new"><%= a('top', {}, context)%>はじめから</a></p>
+          <% else %>
+          <% end %>
+            <p class="pager_old"><%= a('more', {}, context)%>ふるいもの</a></p>
+        </div>
       <% else %>
           <p class="button"><a href="/"><img src="/img/button_back.png" alt="もどる"></a></p>
       <% end %>

@@ -349,6 +349,26 @@ h1 a:focus {
 	margin-bottom: 0px;
 }
 
+
+/* pager
+================================================== */
+.pager {
+	margin-top: 200px;
+	line-height: 1.0em;
+	font-family: "misaki";
+}
+.pager_current {
+	text-align: center;
+}
+.pager_new {
+	margin-top: -1em;
+	float: left;
+}
+.pager_old {
+	margin-top: -1em;
+	float: right;
+}
+
 /* ==========================================================================
    Media Queries
    ========================================================================== */
