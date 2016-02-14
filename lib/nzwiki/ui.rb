@@ -90,7 +90,7 @@ module NZWiki
         </head>
         <body>
           <div id="wrapper">
-            <h1>とちぎポケカ掲示板</h1>
+            <h1><a href="/">とちぎポケカ掲示板</a></h1>
             <div class='UserTofu'>
               <%= @user.to_html(context) %>
               <% if session.has_username? %>
@@ -234,15 +234,16 @@ module NZWiki
                 <img src="/img/img<%= entry_kind %>.png">
               </p>
             </div>
-            
           </div>
         <% end %>
-        <% if @cursor > 0 %>
-          いま<%=h @cursor + 1%>ページ</a>
-          <%= a('top', {}, context)%>はじめから</a>
-        <% else %>
-        <% end %>
-        <%= a('more', {}, context)%>ふるいもの</a>
+        <div class="pager">
+          <% if @cursor > 0 %>
+            <p class="pager_current">いま<%=h @cursor + 1%>ページ</a></p>
+            <p class="pager_new"><%= a('top', {}, context)%>はじめから</a></p>
+          <% else %>
+          <% end %>
+            <p class="pager_old"><%= a('more', {}, context)%>ふるいもの</a></p>
+        </div>
       <% else %>
           <p class="button"><a href="/"><img src="/img/button_back.png" alt="もどる"></a></p>
       <% end %>
@@ -280,8 +281,7 @@ module NZWiki
       <% unless @session.listing?(context) %>
         <% history = @session.get_wiki_history(context) %>
         <% if history.size > 1 %>
-           <div class='list_entry_wrapper list_entry_m'>
-            <div class='list_entry'>
+           <div class='history_wrapper list_entry_m'>
               <% history.reverse_each do |rev| %>
                 <div class='ListInfo'>
                   <p class="author">
@@ -292,11 +292,8 @@ module NZWiki
                     <%=h rev[:mtime].strftime("%Y-%m-%d %H:%M") %>
                   </p>
                 </div>
-                <pre>
-                  <%=h rev[:src] %>
-                </pre>
+                <p class="history_text"><%=h rev[:src] %></p>
               <% end %>
-            </div>
           </div>
         <% end %>
       <% end %>

@@ -91,7 +91,7 @@ a:link,
 a:visited {
 	color: #aa4c0f;
 }
-a:hover,  
+a:hover,
 a:active,
 a:focus {
 	text-decoration: none;
@@ -119,6 +119,16 @@ h1 {
 	font-family: "misaki";
 	letter-spacing: 1px;
 	text-align: center;
+}
+h1 a:link,
+h1 a:visited {
+	text-decoration: none;
+	color: #ffffff;
+}
+h1 a:hover,
+h1 a:active,
+h1 a:focus {
+	color: #a05432;
 }
 
 /* UserTofu
@@ -180,8 +190,8 @@ h1 {
 	appearance: none;
 	padding: 10px 20px;
 	border-radius: 10px;
-	border-top: 3px solid #915b0a;
-	border-left: 3px solid #915b0a;
+	border-top: 2px solid #915b0a;
+	border-left: 2px solid #915b0a;
 	background: #ffffff;
 }
 .UserTofu input.submit {
@@ -262,16 +272,16 @@ h1 {
 	z-index: 9999;
 }
 .list_entry_m .list_entry {
-	border: 20px solid #a05432;
+	border: 20px solid #ca551d;
 }
 .list_entry_m .list_entry:before {
-	left: 37%;
-	border-color: #a05432 transparent transparent;
+	left: 7%;
+	border-color: #ca551d transparent transparent;
 }
 .list_entry_m .list_entry_img {
 	position: absolute;
 	bottom: -170px;
-	right: 80px;
+	right: 20px;
 }
 .list_entry_0 .list_entry {
 	border: 20px solid #a05432;
@@ -290,20 +300,18 @@ h1 {
 	bottom: -170px;
 	left: 30px;
 }
-.list_entry_2 .list_entry_img {
-	position: absolute;
-	bottom: -170px;
-	right: 110px;
-}
 .list_entry_2 .list_entry {
+	padding: 20px 20px 5.8em 20px;
 	border: 20px solid #c96c11;
 }
 .list_entry_2 .list_entry:before {
 	left: 35%;
 	border-color: #c96c11 transparent transparent;
 }
-.list_entry_2 .list_entry {
-	padding: 20px 20px 5.8em 20px;
+.list_entry_2 .list_entry_img {
+	position: absolute;
+	bottom: -170px;
+	right: 110px;
 }
 
 /* ListInfo
@@ -322,6 +330,43 @@ h1 {
 	color: #e4ab1f;
 	font-family: 
 	"misaki";
+}
+
+/* history
+================================================== */
+.history_wrapper {
+	margin-top: 30px;
+	padding: 20px;
+	text-align: left;
+	border: 20px solid #ca551d;
+	border-radius: 10px;
+	background: #ffffff;
+}
+.history_wrapper .history_text {
+	margin-bottom: 60px;
+}
+.history_wrapper .history_text:last-child {
+	margin-bottom: 0px;
+}
+
+
+/* pager
+================================================== */
+.pager {
+	margin-top: 200px;
+	line-height: 1.0em;
+	font-family: "misaki";
+}
+.pager_current {
+	text-align: center;
+}
+.pager_new {
+	margin-top: -1em;
+	float: left;
+}
+.pager_old {
+	margin-top: -1em;
+	float: right;
 }
 
 /* ==========================================================================
