@@ -16,7 +16,7 @@ module NZWiki
 
     def timeline_page_name?(name)
       time = Drip.key_to_time(name.to_i(36))
-      (Time.local(2016) .. Time.now).include?(time)
+      Time.local(2016) < time && time < Time.now
     rescue
       false
     end
