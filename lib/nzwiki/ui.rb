@@ -160,6 +160,9 @@ module NZWiki
 
   class PromptTofu < Tofu::Tofu
     ERB.new(<<-EOS).def_method(self, 'to_html(context)')
+      <% if @memo %>
+        <p><%=h @memo %></p>
+      <% end %>
       <p>
         <% nazo = @session.nazo.first %>
         <%= form('prompt', {}, context) %>
@@ -180,6 +183,7 @@ module NZWiki
 
     def initialize(session)
       super(session)
+      @memo = nil
       @prompt_expires = Time.now
     end
 
@@ -187,17 +191,23 @@ module NZWiki
       answer ,= params['answer']
       it = answer.force_encoding('utf-8') if answer
       nazo = @session.nazo.first
-      if nazo[:answer].empty?
-        @memo = it
+      if nazo[:answer].empty? # fav poke
+        @fav = it
         @session.nazo.shift
         @prompt_expires = Time.now + 30
-      elsif nazo[:answer][0] == it and @prompt_expires > Time.now
+        @memo = "30秒で答えてね"
+      elsif @prompt_expires < Time.now
+        @session.nazo_setup
+        @memo = "時間切れ！"
+      elsif nazo[:answer][0] != it
+        @session.nazo_setup
+        @memo = "えっ？"
+      else
+        @memo = nil
         @session.nazo.shift
         if @session.nazo.empty?
           @session.login = true
         end
-      else
-        @session.nazo_setup
       end
       context.res.set_redirect(WEBrick::HTTPStatus::MovedPermanently,
                                action(context))
