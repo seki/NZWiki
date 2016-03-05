@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-require 'kramdown'
 require 'drip'
+require 'erb'
 
 module NZWiki
   class Book
@@ -46,6 +46,12 @@ module NZWiki
   end
 
   class Page
+    include ERB::Util
+    ERB.new(<<-EOS).def_method(self, 'to_html(text)')
+<pre>
+<%=h text %>
+</pre>
+EOS
     def initialize(info)
       info = {} unless info
       text = info[:src] || ''
@@ -53,13 +59,11 @@ module NZWiki
       mtime = info[:mtime] || Time.now
       update(text, author, mtime)
     end
-    attr_reader :src, :html, :warnings, :author, :mtime
+    attr_reader :src, :html, :author, :mtime
 
     def update(text, author, mtime=Time.now)
       @src = text
-      document = Kramdown::Document.new(text)
-      @html = document.to_html
-      @warnings = document.warnings
+      @html = to_html(text)
       author = [author, @author].compact.flatten.uniq #FIXME
       @author = author
       @mtime = mtime
