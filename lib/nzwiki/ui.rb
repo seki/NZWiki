@@ -115,6 +115,7 @@ module NZWiki
         <body>
           <div id="wrapper">
             <h1><a href="/">とちぎポケカ掲示板</a></h1>
+            <p class="change_name font"><%= a('change', {}, context) %>なまえをかえる</a></p>
             <div class='UserTofu'>
               <%= @user.to_html(context) %>
               <% if session.has_username? %>
@@ -143,6 +144,10 @@ module NZWiki
       @history = HistoryTofu.new(session)
     end
     attr_reader :prompt, :list
+
+    def do_change(context, params)
+      @session.forget_user
+    end
   end
 
   class UserTofu < Tofu::Tofu
@@ -161,10 +166,6 @@ module NZWiki
 
     def initialize(session)
       super(session)
-    end
-
-    def do_change(context, params)
-      @session.forget_user
     end
 
     def do_user(context, params)
@@ -252,6 +253,22 @@ module NZWiki
     ERB.new(<<-EOS).def_method(self, 'to_html(context)')
       <% if @session.listing?(context) %>
         <% @session.book.recent_names.slice(@cursor * 7, 7) do |name| %>
+          <%= page_to_html(context, name) %>
+        <% end %>
+        <div class="pager">
+          <% if @cursor > 0 %>
+            <p class="pager_current">いま<%=h @cursor + 1%>ページ</a></p>
+            <p class="pager_new"><%= a('top', {}, context)%>はじめから</a></p>
+          <% else %>
+          <% end %>
+            <p class="pager_old"><%= a('more', {}, context)%>ふるいもの</a></p>
+        </div>
+      <% else %>
+        <%= page_to_html(context, @session.to_wiki_name(context)) %>
+      <% end %>
+    EOS
+
+    ERB.new(<<-EOS).def_method(self, 'page_to_html(context, name)')
           <% page = @session.book[name] %>
           <% entry_kind = page_style(page) %>
           <div class='list_entry_wrapper list_entry_<%= entry_kind %>'>
@@ -265,28 +282,18 @@ module NZWiki
                 </p>
               </div>
               <%= page.html %>
-              <p class="button">
-                <a href="/<%= name %>">
-                  <img src="/img/button_fix.png" alt="なおす">
-                </a>
-              </p>
+              <% if @session.listing?(context) %>
+                <p class="button">
+                  <a href="/<%= name %>">
+                    <img src="/img/button_fix.png" alt="なおす">
+                  </a>
+                </p>
+              <% end %>
               <p class="list_entry_img shake-rotate">
                 <img src="/img/img<%= entry_kind %>.png">
               </p>
             </div>
           </div>
-        <% end %>
-        <div class="pager">
-          <% if @cursor > 0 %>
-            <p class="pager_current">いま<%=h @cursor + 1%>ページ</a></p>
-            <p class="pager_new"><%= a('top', {}, context)%>はじめから</a></p>
-          <% else %>
-          <% end %>
-            <p class="pager_old"><%= a('more', {}, context)%>ふるいもの</a></p>
-        </div>
-      <% else %>
-          <p class="button"><a href="/"><img src="/img/button_back.png" alt="もどる"></a></p>
-      <% end %>
     EOS
 
     def initialize(session)
@@ -322,6 +329,9 @@ module NZWiki
         <% history = @session.get_wiki_history(context) %>
         <% if history.size > 1 %>
            <div class='history_wrapper list_entry_m'>
+              <div class='ListInfo'>
+              <p><%=h history.size%> 件の変更があります。</p>
+              </div>
               <% history.reverse_each do |rev| %>
                 <div class='ListInfo'>
                   <p class="author">
@@ -336,6 +346,8 @@ module NZWiki
               <% end %>
           </div>
         <% end %>
+        <p class="button"><a href="/"><img src="/img/button_back.png" alt="もどる"></a></p>
+
       <% end %>
     EOS
   end
@@ -343,21 +355,13 @@ module NZWiki
   class WikiTofu < Tofu::Tofu
     ERB.new(<<-EOS).def_method(self, 'to_html(context)')
       <% page = @session.get_wiki_page(context) %>
-      <% unless @session.listing?(context) %>
-        <div class="page"><%= page.html %></div>
-      <% end %>
       <% if @session.login %>
         <%= form('text', {}, context) %>
           <textarea name='text' placeholder="ここにメッセージをかいてね"><%=h page.src %></textarea>
           <input class='submit' type='submit' name='ok' value='OK'/>
         </form>
       <% end %>
-      <p class="change_name font"><%= a('change', {}, context) %>なまえをかえる</a></p>
     EOS
-
-    def do_change(context, params)
-      @session.forget_user
-    end
 
     def do_text(context, params)
       return unless @session.login
