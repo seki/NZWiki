@@ -24,6 +24,7 @@ module NZWiki
       @base = BaseTofu.new(self)
       @login = false
       @login_expires = Time.now
+      @enable_login_by_fav = false
       nazo_setup
     end
     attr_reader :book, :store, :nazo, :user, :login_expires
@@ -31,6 +32,15 @@ module NZWiki
     def login
       @login = false if @login_expires < Time.now
       @login
+    end
+
+    def fav=(key)
+      return unless login
+      @@fav[@user] = key
+    end
+
+    def fav?(key)
+      @enable_login_by_fav && @@fav[@user] == key
     end
     
     def has_username?
@@ -40,7 +50,10 @@ module NZWiki
     def login=(value)
       @login = value
       nazo_setup
-      @login_expires = Time.now + 300 if @login
+      if @login
+        @login_expires = Time.now + 300
+        @enable_login_by_fav = true
+      end
     end
     
     def user=(value)
@@ -81,6 +94,13 @@ module NZWiki
 
     def move_to_head
       @base.list.do_top(nil, nil)
+    end
+
+    def forget_user
+      self.fav = nil
+      self.login = false
+      self.user = ''
+      @enable_login_by_fav = false
     end
   end
 
@@ -144,8 +164,7 @@ module NZWiki
     end
 
     def do_change(context, params)
-      @session.login = false
-      @session.user = ''
+      @session.forget_user
     end
 
     def do_user(context, params)
@@ -184,6 +203,7 @@ module NZWiki
     def initialize(session)
       super(session)
       @memo = nil
+      @fav = nil
       @prompt_expires = Time.now
     end
 
@@ -193,9 +213,14 @@ module NZWiki
       nazo = @session.nazo.first
       if nazo[:answer].empty? # fav poke
         @fav = it
-        @session.nazo.shift
-        @prompt_expires = Time.now + 30
-        @memo = "30秒で答えてね"
+        if @session.fav?(it)
+          @session.login = true
+          @memo = nil
+        else
+          @session.nazo.shift
+          @prompt_expires = Time.now + 30
+          @memo = "30秒で答えてね"
+        end
       elsif @prompt_expires < Time.now
         @session.nazo_setup
         @memo = "時間切れ！"
@@ -207,6 +232,7 @@ module NZWiki
         @session.nazo.shift
         if @session.nazo.empty?
           @session.login = true
+          @session.fav = @fav
         end
       end
       context.res.set_redirect(WEBrick::HTTPStatus::MovedPermanently,
@@ -330,8 +356,7 @@ module NZWiki
     EOS
 
     def do_change(context, params)
-      @session.user = nil
-      @session.login = false
+      @session.forget_user
     end
 
     def do_text(context, params)
