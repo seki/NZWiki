@@ -219,8 +219,8 @@ module NZWiki
           @memo = nil
         else
           @session.nazo.shift
-          @prompt_expires = Time.now + 30
-          @memo = "30秒で答えてね"
+          @prompt_expires = Time.now + 90
+          @memo = "90秒で答えてね"
         end
       elsif @prompt_expires < Time.now
         @session.nazo_setup
@@ -252,7 +252,7 @@ module NZWiki
   class ListTofu < Tofu::Tofu
     ERB.new(<<-EOS).def_method(self, 'to_html(context)')
       <% if @session.listing?(context) %>
-        <% @session.book.recent_names.slice(@cursor * 7, 7) do |name| %>
+        <% @session.book.recent_names.slice(@cursor * 21, 21) do |name| %>
           <%= page_to_html(context, name) %>
         <% end %>
         <div class="pager">
