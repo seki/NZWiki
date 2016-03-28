@@ -102,6 +102,13 @@ module NZWiki
       self.user = ''
       @enable_login_by_fav = false
     end
+
+    def do_GET(context)
+      context.res_header('pragma', 'no-cache')
+      context.res_header('cache-control', 'no-cache')
+      context.res_header('expires', 'Thu, 01 Dec 1994 16:00:00 GMT')
+      super(context)
+    end
   end
 
   class BaseTofu < Tofu::Tofu
