@@ -51,7 +51,7 @@ module NZWiki
       @login = value
       nazo_setup
       if @login
-        @login_expires = Time.now + 300
+        @login_expires = Time.now + 7200
         @enable_login_by_fav = true
       end
     end
