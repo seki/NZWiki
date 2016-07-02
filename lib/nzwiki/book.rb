@@ -49,9 +49,21 @@ module NZWiki
     include ERB::Util
     ERB.new(<<-EOS).def_method(self, 'to_html(text)')
 <pre>
-<%=h text %>
+<% 
+  text.each_line do |line| 
+    line.chomp!
+    if /^(-\s*)(.*?)(\s*x\s*[0-9]*)?$/ =~ line
+      %><%=h $1%><%= card_link($2)%><%=h $3 %>
+<%
+    else
+      %><%=h line %>
+<%
+    end
+  end
+%>
 </pre>
 EOS
+
     def initialize(info)
       info = {} unless info
       text = info[:src] || ''
@@ -71,6 +83,12 @@ EOS
 
     def to_hash
       {:src => @src, :author => @author, :mtime => @mtime }
+    end
+
+    def card_link(card)
+      key = (card.split(/[()\/]/) + ["ポケモンカード"]).join(" ")
+      it = CGI.escape(key)
+      "<a href='http://www.amazon.co.jp/#{it}/s?ie=UTF8&page=1&rh=i:aps,k:#{it}&tag=ilikeruby-22'>#{CGI.escape_html(card)}</a>"
     end
   end
 end
